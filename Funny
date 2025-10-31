@@ -1,0 +1,144 @@
+
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Спокійно-страшна сторінка — Spooky Page</title>
+  <style>
+    :root{--bg:#0b0f13;--card:#0f1720;--accent:#8b5cf6;--muted:#9ca3af}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{background:radial-gradient(ellipse at 20% 10%, rgba(139,92,246,0.08), transparent 15%),
+          radial-gradient(ellipse at 80% 80%, rgba(34,197,94,0.02), transparent 15%),
+          var(--bg);color:#e6eef8;display:flex;align-items:center;justify-content:center}
+    .card{width:min(880px,92%);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+          border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(2,6,23,0.7);border-radius:16px;padding:28px;position:relative;overflow:hidden}
+    h1{margin:0 0 6px;font-size:28px}
+    p.lead{margin:0 0 18px;color:var(--muted)}.controls{display:flex;gap:10px;flex-wrap:wrap}
+button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;color:inherit;cursor:pointer}
+button:active{transform:translateY(1px)}
+
+.scene{height:360px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.12));display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-top:18px}
+.moon{position:absolute;right:12%;top:8%;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255,255,255,0.6) 20%, rgba(255,255,255,0.05) 55%), linear-gradient(180deg,#ffffff0d,#ffffff00);filter:blur(4px);opacity:0.7}
+.mist{position:absolute;left:-10%;bottom:-10%;width:120%;height:160%;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));transform:rotate(-6deg);opacity:0.6}
+
+.ghost{width:120px;height:160px;border-radius:60px 60px 20px 20px;background:linear-gradient(180deg,#ffffff14,#ffffff08);border:1px solid rgba(255,255,255,0.04);position:relative;display:flex;align-items:flex-end;justify-content:center;transition:transform 0.9s ease,opacity 0.9s ease;opacity:1}
+.ghost .face{position:absolute;top:36%;display:flex;gap:10px}
+.eye{width:12px;height:12px;border-radius:50%;background:#071029}
+.mouth{width:28px;height:10px;border-radius:20px;background:#071029;transform:translateY(6px)}
+
+.ghost.hidden{transform:translateY(40px) scale(0.92);opacity:0}
+
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+
+footer{margin-top:14px;font-size:13px;color:var(--muted)}
+
+/* gentle floating animation */
+@keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+.ghost{animation:floaty 4s ease-in-out infinite}
+
+/* subtle pulse for play button */
+.pulse{box-shadow:0 0 0 rgba(139,92,246,0.0);animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 rgba(139,92,246,0.12)}50%{box-shadow:0 12px 30px rgba(139,92,246,0.04)}100%{box-shadow:0 0 0 rgba(139,92,246,0.0)}}
+
+/* accessibility */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <h1>Спокійно-страшна сторінка</h1>
+    <p class="lead">Легка тематична сторінка для GitHub Pages. Аудіо запускається тільки по натисненню — це безпечніше і дружніше для відвідувачів.</p><div class="controls">
+  <button id="playBtn" class="pulse" aria-pressed="false">🔊 Увімкнути атмосферу</button>
+  <button id="surpriseBtn">🎭 Легка «сюрпризна» анімація</button>
+  <button id="muteBtn">🔈 Вимкнути звук</button>
+  <a id="qrLink" target="_blank" rel="noopener" style="text-decoration:none"><button id="viewQR">🧾 Переглянути QR-код (після деплою)</button></a>
+</div>
+
+<div class="scene" aria-hidden="false">
+  <div class="moon" aria-hidden="true"></div>
+  <div class="mist" aria-hidden="true"></div>
+  <div id="ghost" class="ghost" aria-hidden="false">
+    <div class="face">
+      <div class="eye"></div>
+      <div class="eye"></div>
+    </div>
+    <div class="mouth"></div>
+  </div>
+</div>
+
+<p class="note">Порада: додай файл <code>ambient.mp3</code> у корінь репозиторію або вкажи пряме HTTPS посилання у файлі. Аудіо не стартує автоматично — користувач має натиснути кнопку. Це краще для доступності.</p>
+
+<footer>Завантаж/редагуй цей файл як <code>index.html</code> у своєму GitHub репозиторії і вмикай GitHub Pages.</footer>
+
+  </div>  <audio id="ambient" loop preload="none">
+    <!-- Replace with your audio file path or keep empty if you don't want audio -->
+    <source id="audioSource" src="ambient.mp3" type="audio/mpeg">
+    Ваш браузер не підтримує аудіо елемент.
+  </audio>  <script>
+    // --- Configuration ---
+    // If you host the audio in your repo, use a relative path like 'ambient.mp3'.
+    // If you host audio elsewhere, set AUDIO_URL to the HTTPS URL.
+    const AUDIO_URL = 'ambient.mp3'; // edit before pushing if needed
+
+    // --- Elements ---
+    const playBtn = document.getElementById('playBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const surpriseBtn = document.getElementById('surpriseBtn');
+    const ambient = document.getElementById('ambient');
+    const audioSource = document.getElementById('audioSource');
+    const ghost = document.getElementById('ghost');
+    const qrLink = document.getElementById('qrLink');
+
+    // Set audio source at runtime (so it's obvious what to change).
+    if (AUDIO_URL) {
+      audioSource.src = AUDIO_URL;
+      ambient.load();
+    }
+
+    playBtn.addEventListener('click', async () => {
+      try {
+        // Start audio only after user gesture
+        await ambient.play();
+        playBtn.textContent = '🔊 Атмосфера увімкнена';
+        playBtn.setAttribute('aria-pressed','true');
+      } catch (err) {
+        console.warn('Не вдалося відтворити аудіо автоматично — переконайтесь, що файл доступний і браузер дозволяє відтворення.');
+        alert('Не вдалося відтворити аудіо. Перевірте, будь ласка, чи файл ambient.mp3 додано до репозиторію або вказано коректний URL.');
+      }
+    });
+
+    muteBtn.addEventListener('click', () => {
+      ambient.pause();
+      ambient.currentTime = 0;
+      playBtn.textContent = '🔊 Увімкнути атмосферу';
+      playBtn.setAttribute('aria-pressed','false');
+    });
+
+    surpriseBtn.addEventListener('click', () => {
+      // gentle non-startling effect: ghost grows and waves, no sudden loud noises or flashes
+      ghost.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+      ghost.style.transform = 'scale(1.18) translateY(-6px)';
+      setTimeout(() => { ghost.style.transform = ''; }, 900);
+    });
+
+    // QR button: will open a Google Chart API QR image for the current page URL.
+    document.getElementById('viewQR').addEventListener('click', () => {
+      const pageUrl = location.href;
+      const encoded = encodeURIComponent(pageUrl);
+      const qrUrl = `https://chart.googleapis.com/chart?chs=400x400&cht=qr&chl=${encoded}`;
+      // open in new tab
+      window.open(qrUrl,'_blank');
+    });
+
+    // Accessibility: enable keyboard activation
+    [playBtn, muteBtn, surpriseBtn].forEach(b=>b.addEventListener('keyup', e => { if (e.key === 'Enter' || e.key === ' ') b.click(); }));
+
+    // Small touch: if audio is missing, disable play button gently
+    ambient.addEventListener('error', () => {
+      playBtn.disabled = true;
+      playBtn.textContent = 'Аудіо не знайдено';
+      playBtn.style.opacity = 0.5;
+    });
+  </script></body>
+</html>
